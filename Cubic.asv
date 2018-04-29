@@ -1,0 +1,42 @@
+classdef Cubic < handle
+    properties
+        vertices
+        faces        
+        scale
+        patch
+    end
+    
+    methods
+        function this = Cubic(scale)
+            this.scale = scale; %??
+            [this.vertices, this.faces, cindex] = teapotGeometry;     
+        end
+        
+        function render(this,ax,camMat)
+            % Homogeneous coordinates (x,y,1)
+            vert = [this.vertices,ones(size(this.vertices,1),1)];
+            % Transform vertices from 3d world into 2d image plane
+            vert2d = vert*camMat;
+            % Homogenous coordinates (x,y,1) to (x,y)
+
+            vertImage =  vert2d(:,1:2)./vert2d(:,3);
+
+            % draw patch
+            if isempty(this.patch) || ~isvalid(this.patch)
+                hold(ax,'on');
+                [~, ~, cindex] = teapotGeometry;
+                this.patch = patch('Faces',this.faces,'Vertices',this.vertices,'FaceVertexCData',cindex,'FaceColor','interp');
+                hold(ax,'off');
+            else
+            
+                this.patch.Vertices= vertImage;
+            end
+            drawnow;
+            
+        end
+        
+        function clear(this)
+            delete(this.patch)            
+        end
+    end
+end
